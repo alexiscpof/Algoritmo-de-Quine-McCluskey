@@ -3,8 +3,10 @@ import java.util.*;
 public class Termo {
     private String representacao;
     private Set<Integer> mintermosContemplados;
+    private boolean combinado;
     public Termo(String representacao) {
         this.representacao = representacao;
+        combinado = false;
         mintermosContemplados = new HashSet<>();
         determinarMintermosContemplados("", 0);
     }
@@ -59,6 +61,9 @@ public class Termo {
                 numeroDeBits1++;
         }
         return numeroDeBits1;
+    }
+    public void marcarComoCombinado() {
+        combinado = true;
     }
     public String getRepresentacao() {
         return representacao;
