@@ -78,4 +78,19 @@ public class Termo {
     public String toString() {
         return representacao;
     }
+    @Override
+    public int hashCode() {
+        return representacao.hashCode();
+    }
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Termo outro = (Termo) obj;
+        return representacao.equals(outro.representacao);
+    }
 }
