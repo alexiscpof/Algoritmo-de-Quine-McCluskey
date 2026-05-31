@@ -16,7 +16,7 @@ public class QuineMcCluskey {
         }
         return termosIniciais;
     }
-    private Map<Integer, List<Termo>> agruparPorNumeroDeBits1(List<Termo> termos) {
+    private Map<Integer, List<Termo>> agruparPorNumeroDeBits1(Set<Termo> termos) {
         Map<Integer, List<Termo>> termosAgrupados = new HashMap<>();
         for (Termo termo : termos) {
             int numeroDeBits1 = termo.getNumeroDeBits1();
@@ -55,5 +55,14 @@ public class QuineMcCluskey {
                     implicantesPrimos.add(termo);
             }
         }
+    }
+    public Set<Termo> encontrarImplicantesPrimos() {
+        Set<Termo> termosAtuais = new HashSet<>(gerarTermosIniciais());
+        while (!termosAtuais.isEmpty()) {
+            Map<Integer, List<Termo>> grupos = agruparPorNumeroDeBits1(termosAtuais);
+            Set<Termo> novosTermos = realizarCombinacoes(grupos);
+            termosAtuais = novosTermos;
+        }
+        return implicantesPrimos;
     }
 }
