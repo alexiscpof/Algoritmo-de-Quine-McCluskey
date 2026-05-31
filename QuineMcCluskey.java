@@ -3,6 +3,7 @@ import java.util.*;
 public class QuineMcCluskey {
     private FuncaoLogica funcao;
     private Set<Termo> implicantesPrimos;
+    private Set<Termo> implicantesPrimosEssenciais;
     public QuineMcCluskey(FuncaoLogica funcao) {
         this.funcao = funcao;
         implicantesPrimos = new HashSet<>();
@@ -99,5 +100,24 @@ public class QuineMcCluskey {
         }
         // Após todas as iterações de combinações, todos os implicantes primos foram determinados
         return implicantesPrimos;
+    }
+    public Map<Integer, Set<Termo>> mapeamentoDeCobertura() {
+        Map<Integer, Set<Termo>> cobertura = new HashMap<>();
+        for (Integer mintermo : funcao.getMintermos()) {
+            cobertura.put(mintermo, new HashSet<>());
+        }
+        for (Termo implicante : implicantesPrimos) {
+            for (Integer mintermoContemplado : implicante.getMintermosContemplados()) {
+                cobertura.get(mintermoContemplado).add(implicante);
+            }
+        }
+        return cobertura;
+    }
+    public Set<Termo> determinarImplicantesEssenciais() {
+        for (Set<Termo> cobertura : mapeamentoDeCobertura().values()) {
+            if (cobertura.size() == 1) 
+                implicantesPrimosEssenciais.add(cobertura.iterator().next());
+        }
+        return implicantesPrimosEssenciais;
     }
 }
