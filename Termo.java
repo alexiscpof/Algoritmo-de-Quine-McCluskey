@@ -2,7 +2,7 @@ import java.util.*;
 
 public class Termo {
     private String representacao;
-    private Set<Long> mintermosContemplados;
+    private Set<Integer> mintermosContemplados;
     public Termo(String representacao) {
         this.representacao = representacao;
         mintermosContemplados = new HashSet<>();
@@ -14,7 +14,7 @@ public class Termo {
         e já pode ser adicionado à lista de mintermos contemplados */
         if (indice == representacao.length()) {
             /* Conversão de uma String para número inteiro */
-            Long mintermoContemplado = Long.parseLong(termoAtual, 2);
+            Integer mintermoContemplado = Integer.parseInt(termoAtual, 2);
             mintermosContemplados.add(mintermoContemplado);
             return;
         }
@@ -39,7 +39,7 @@ public class Termo {
     public String getRepresentacao() {
         return representacao;
     }
-    public Set<Long> getMintermosContemplados() {
+    public Set<Integer> getMintermosContemplados() {
         return mintermosContemplados;
     }
 }
