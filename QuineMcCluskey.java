@@ -23,4 +23,18 @@ public class QuineMcCluskey {
         }
         return termosAgrupados;
     }
+    private Set<Termo> combinarTermosAdjacentes(List<Termo> grupo1, List<Termo> grupo2) {
+        Set<Termo> combinacoes = new HashSet<>();
+        for (Termo termo1 : grupo1) {
+            for (Termo termo2 : grupo2) {
+                if (termo1.podeCombinarCom(termo2)) {
+                    combinacoes.add(termo1.combinarCom(termo2));
+                    termo1.marcarComoCombinado();
+                    termo2.marcarComoCombinado();
+                }
+            }
+        }
+        return combinacoes;
+    }
+    
 }
