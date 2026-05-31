@@ -28,6 +28,14 @@ public class Termo {
             determinarMintermosContemplados(termoAtual + caractereAtual, indice + 1);
         }
     }
+    public boolean podeCombinarCom(Termo outroTermo) {
+        int numeroDeBitsDiferentes = 0;
+        for (int i = 0; i < representacao.length(); i++) {
+            if (representacao.charAt(i) != outroTermo.getRepresentacao().charAt(i))
+                numeroDeBitsDiferentes++;
+        }
+        return numeroDeBitsDiferentes == 1;
+    }
     public String getRepresentacao() {
         return representacao;
     }
