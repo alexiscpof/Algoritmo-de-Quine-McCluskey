@@ -2,8 +2,10 @@ import java.util.*;
 
 public class QuineMcCluskey {
     private FuncaoLogica funcao;
+    private Set<Termo> implicantesPrimos;
     public QuineMcCluskey(FuncaoLogica funcao) {
         this.funcao = funcao;
+        implicantesPrimos = new HashSet<>();
     }
     private List<Termo> gerarTermosIniciais() {
         List<Termo> termosIniciais = new ArrayList<>();
@@ -36,5 +38,22 @@ public class QuineMcCluskey {
         }
         return combinacoes;
     }
-    
+    private Set<Termo> realizarCombinacoes(Map<Integer, List<Termo>> grupos) {
+        Set<Termo> termosCombinados = new HashSet<>();
+        for (Integer chave : grupos.keySet()) {
+            if (grupos.containsKey(chave + 1)) {
+                termosCombinados.addAll(combinarTermosAdjacentes(grupos.get(chave), grupos.get(chave + 1)));
+            }
+        }
+        verificarImplicantesPrimos(grupos);
+        return termosCombinados;
+    }
+    private void verificarImplicantesPrimos(Map<Integer, List<Termo>> grupos) {
+        for(Map.Entry<Integer, List<Termo>> entrada : grupos.entrySet()) {
+            for (Termo termo : entrada.getValue()) {
+                if (!termo.getCombinado())
+                    implicantesPrimos.add(termo);
+            }
+        }
+    }
 }
