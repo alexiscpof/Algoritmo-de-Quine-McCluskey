@@ -28,6 +28,8 @@ public class Termo {
             determinarMintermosContemplados(termoAtual + caractereAtual, indice + 1);
         }
     }
+    /* Método que verifica se dois termos podem ser combinados. Dois termos podem ser combinados quando a diferença entre um 
+    e o outro se dá em apenas um bit */
     public boolean podeCombinarCom(Termo outroTermo) {
         int numeroDeBitsDiferentes = 0;
         for (int i = 0; i < representacao.length(); i++) {
@@ -35,6 +37,28 @@ public class Termo {
                 numeroDeBitsDiferentes++;
         }
         return numeroDeBitsDiferentes == 1;
+    }
+    // Método que retorna a combinação deste termo com outro
+    public Termo combinarCom(Termo outroTermo) {
+        char caractereAtual;
+        StringBuilder termoCombinado = new StringBuilder();
+        for (int i = 0; i < representacao.length(); i++) {
+            caractereAtual = representacao.charAt(i);
+            if (caractereAtual != outroTermo.getRepresentacao().charAt(i))
+                termoCombinado.append('-');
+            else
+                termoCombinado.append(caractereAtual);
+        }
+        return new Termo(termoCombinado.toString());
+    }
+    // Método que retorna o número de bits com valor 1 presentes na representação do termo
+    public int getNumeroDeBits1() {
+        int numeroDeBits1 = 0;
+        for (char caractere : representacao.toCharArray()) {
+            if (caractere == '1')
+                numeroDeBits1++;
+        }
+        return numeroDeBits1;
     }
     public String getRepresentacao() {
         return representacao;
