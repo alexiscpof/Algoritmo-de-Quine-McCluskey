@@ -66,4 +66,8 @@ public class Termo {
     public Set<Integer> getMintermosContemplados() {
         return mintermosContemplados;
     }
+    @Override
+    public String toString() {
+        return representacao;
+    }
 }
