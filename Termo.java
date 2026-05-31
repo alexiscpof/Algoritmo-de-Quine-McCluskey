@@ -65,6 +65,9 @@ public class Termo {
     public void marcarComoCombinado() {
         combinado = true;
     }
+    public boolean getCombinado() {
+        return combinado;
+    }
     public String getRepresentacao() {
         return representacao;
     }
