@@ -129,12 +129,22 @@ public class QuineMcCluskey {
         }
         return implicantesPrimosEssenciais;
     }
+    // Método que determina quais mintermos são cobertos por implicantes essenciais
+    public Set<Integer> mintermosCobertosPorEssenciais() {
+        Set<Integer> mintermosCobertosPorEssenciais = new HashSet<>();
+        for (Termo termo : implicantesPrimosEssenciais) {
+            mintermosCobertosPorEssenciais.addAll(termo.getMintermosContemplados());
+        }
+        return mintermosCobertosPorEssenciais;
+    }
     // Método booleano que indica se os implicantes essenciais são suficientes para cobrir todos os mintermos da função
     public boolean essenciaisCobremTodosMintermos() {
-        Set<Integer> mintermosContempladosPorEssenciais = new HashSet<>();
-        for (Termo termo : implicantesPrimosEssenciais) {
-            mintermosContempladosPorEssenciais.addAll(termo.getMintermosContemplados());
-        }
-        return mintermosContempladosPorEssenciais.containsAll(funcao.getMintermos());
+        return mintermosCobertosPorEssenciais().containsAll(funcao.getMintermos());
+    }
+    // Método que determina quais mintermos não são cobertos por implicantes essenciais
+    public Set<Integer> mintermosNaoCobertosPorEssenciais() {
+        Set<Integer> mintermosNaoCobertosPorEssenciais = new HashSet<>(mintermosCobertosPorEssenciais());
+        mintermosNaoCobertosPorEssenciais().removeAll(funcao.getMintermos());
+        return mintermosNaoCobertosPorEssenciais;
     }
 }
