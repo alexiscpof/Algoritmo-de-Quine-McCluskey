@@ -153,6 +153,7 @@ public class QuineMcCluskey {
         implicantesNaoEssenciais.removeAll(implicantesPrimosEssenciais);
         return implicantesNaoEssenciais;
     }
+    // Monta a "tabela" de cobertura restante, isto é, com aqueles mintermos que não são cobertos por implicantes essenciais e os implicantes não-essenciais que os cobrem
     public Map<Integer, Set<Termo>> coberturaRestante() {
         // Cria um mapeamento cujas chaves são os mintermos restante da função, e o valor é um conjunto com os implicantes não essenciais que cobrem esse mintermo
         Map<Integer, Set<Termo>> coberturaRestante = new HashMap<>();
@@ -171,5 +172,66 @@ public class QuineMcCluskey {
         }
         // Retorna essa mapeamento
         return coberturaRestante;
+    }
+    /* Nesta etapa do algoritmo, temos todos os implicantes primos da função, assim como os implicantes essenciais. Além disso, já sabemos quais mintermos não são cobertos
+    por implicantes essenciais. O problema agora é determinar qual o menor número de implicantes não-essenciais devemos incluir na expressão minimizada de função. 
+    Para isso, fazemos uma outra tabela, contendo apenas os mintermos que não foram cobertos e os implicantes que os cobrem. Daí, precisamos criar uma expressão com todas
+    as possibilidades que cobrem todos os mintermos restantes. Essa expressão é composta, à princípio, pelo produto da soma dos implicantes de cada mintermo restante. 
+    Após isso, multiplicamos estes fatores (somas de implicantes) e minimizamos a expressão resultante. Ao final deste processo, escolheremos o produto com menor quantidade
+    de termos */
+
+    /* Cria os fatores (somas de implicantes) de cada mintermos restante e os guarda em um conjunto, cada elemento deste conjunto representa um fator. 
+    Exemplo: {[A, B],[C, D]} representa (A + B)*(C + D) */
+    public List<Set<Termo>> criarFatoresDePetrick() {
+        List<Set<Termo>> expressaoDePetrick = new ArrayList<>();
+        for (Set<Termo> somaDeTermos : coberturaRestante().values()) {
+            expressaoDePetrick.add(somaDeTermos);
+        }
+        return expressaoDePetrick;
+    }
+    // Método que reescreve um fator como SOP
+    public Set<Set<Termo>> converterPOSparaSOP(Set<Termo> fator) {
+        Set<Set<Termo>> resultado = new HashSet<>();
+        for (Termo termo : fator) {
+            Set<Termo> produto = new HashSet<>();
+            produto.add(termo);
+            resultado.add(produto);
+        }
+        return resultado;
+    }
+    public Set<Set<Termo>> multiplicarFatores(Set<Set<Termo>> fator1, Set<Set<Termo>> fator2) {
+        Set<Set<Termo>> resultado = new HashSet<>();
+        for (Set<Termo> produto1 : fator1) {
+            for (Set<Termo> produto2 : fator2) {
+                Set<Termo> novoProduto = new HashSet<>();
+                novoProduto.addAll(produto1);
+                novoProduto.addAll(produto2);
+                resultado.add(novoProduto);
+            }
+        }
+        return resultado;
+    }
+    private Set<Set<Termo>> absorver(Set<Set<Termo>> expressao) {
+        Set<Set<Termo>> resultado = new HashSet<>(expressao);
+        for (Set<Termo> produtoA : expressao) {
+            for (Set<Termo> produtoB : expressao) {
+                if (produtoA == produtoB)
+                    continue;
+                if (produtoB.containsAll(produtoA)) {
+                    resultado.remove(produtoB);
+                }
+            }
+        }
+
+        return resultado;
+    }
+    public Set<Set<Termo>> calcularExpressaoDePetrick() {
+        List<Set<Termo>> fatores = criarFatoresDePetrick();
+        Set<Set<Termo>> resultado = converterPOSparaSOP(fatores.get(0));
+        for (int i = 1; i < fatores.size(); i++) {
+            resultado = multiplicarFatores(resultado, converterPOSparaSOP(fatores.get(i)));
+            resultado = absorver(resultado);
+        }
+        return resultado;
     }
 }
