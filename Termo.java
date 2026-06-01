@@ -86,6 +86,26 @@ public class Termo {
     public void marcarComoCombinado() {
         combinado = true;
     }
+    // Metódo que retorna uma String formatada para representar este termo
+    public String paraExpressaoLiteral() {
+        StringBuilder expressao = new StringBuilder();
+        // Percorre todos os caracteres da representação
+        for (int i = 0; i < representacao.length(); i++) {
+            char bit = representacao.charAt(i);
+            // Ignora os bits '-'
+            if (bit == '-') {
+                continue;
+            }
+            // Se o bit for '0', insere um caractere para representar que o literal está negado
+            if (bit == '0') {
+                expressao.append("~");
+            }
+            // Cada literal será representado por um letra, começando do A
+            char variavel = (char) ('A' + i);
+            expressao.append(variavel);
+        }
+        return expressao.toString();
+    }
     // Métodos getters
     public boolean getCombinado() {
         return combinado;
@@ -98,7 +118,7 @@ public class Termo {
     }
     @Override
     public String toString() {
-        return representacao;
+        return paraExpressaoLiteral();
     }
     // Reescreve os método hashCode() e equals() para que objetos desta classe possam se comportar corretamente dentro de um Set
     @Override
