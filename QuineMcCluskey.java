@@ -7,6 +7,7 @@ public class QuineMcCluskey {
     public QuineMcCluskey(FuncaoLogica funcao) {
         this.funcao = funcao;
         implicantesPrimos = new HashSet<>();
+        implicantesPrimosEssenciais = new HashSet<>();
     }
     // Na primeira iteração do algoritmo, quando nenhuma combinação foi realizada, os termos são os próprios implicantes de cada mintermo da função
     private List<Termo> gerarTermosIniciais() {
@@ -101,23 +102,39 @@ public class QuineMcCluskey {
         // Após todas as iterações de combinações, todos os implicantes primos foram determinados
         return implicantesPrimos;
     }
+    // Cria a "tabela" de cobertura do algoritmo
     public Map<Integer, Set<Termo>> mapeamentoDeCobertura() {
+        // Cria um mapeamento cujas chaves são os mintermos da função, e o valor é um conjunto com os implicantes primos que cobrem esse mintermo
         Map<Integer, Set<Termo>> cobertura = new HashMap<>();
+        // Pega os mintermos da função e cria os mapeamentos
         for (Integer mintermo : funcao.getMintermos()) {
             cobertura.put(mintermo, new HashSet<>());
         }
+        // Percorre todos mintermos contemplados por cada implicante primo, e adiciona o implicante no conjunto de termos que cobrem aquele mintermo
         for (Termo implicante : implicantesPrimos) {
             for (Integer mintermoContemplado : implicante.getMintermosContemplados()) {
                 cobertura.get(mintermoContemplado).add(implicante);
             }
         }
+        // Retorna essa mapeamento
         return cobertura;
     }
+    // Determina os implicantes essenciais por meio da "tabela" de cobertura. Os implicantes essenciais são aqueles que cobrem mintermos que não são cobertos por nenhum outro
     public Set<Termo> determinarImplicantesEssenciais() {
+        // Os mintermos que são cobertos por apenas um termo indicam que aquele termo é essencial
         for (Set<Termo> cobertura : mapeamentoDeCobertura().values()) {
             if (cobertura.size() == 1) 
+                // Adiciona o termo na lista de implicantes essenciais
                 implicantesPrimosEssenciais.add(cobertura.iterator().next());
         }
         return implicantesPrimosEssenciais;
+    }
+    // Método booleano que indica se os implicantes essenciais são suficientes para cobrir todos os mintermos da função
+    public boolean essenciaisCobremTodosMintermos() {
+        Set<Integer> mintermosContempladosPorEssenciais = new HashSet<>();
+        for (Termo termo : implicantesPrimosEssenciais) {
+            mintermosContempladosPorEssenciais.addAll(termo.getMintermosContemplados());
+        }
+        return mintermosContempladosPorEssenciais.containsAll(funcao.getMintermos());
     }
 }
