@@ -103,7 +103,7 @@ public class QuineMcCluskey {
         }
     }
     // Cria a "tabela" de cobertura do algoritmo
-    public Map<Integer, Set<Termo>> mapeamentoDeCobertura() {
+    private Map<Integer, Set<Termo>> mapeamentoDeCobertura() {
         // Cria um mapeamento cujas chaves são os mintermos da função, e o valor é um conjunto com os implicantes primos que cobrem esse mintermo
         Map<Integer, Set<Termo>> cobertura = new HashMap<>();
         // Pega os mintermos da função e cria os mapeamentos
@@ -129,7 +129,7 @@ public class QuineMcCluskey {
         }
     }
     // Método que determina quais mintermos são cobertos por implicantes essenciais
-    public Set<Integer> mintermosCobertosPorEssenciais() {
+    private Set<Integer> mintermosCobertosPorEssenciais() {
         Set<Integer> mintermosCobertosPorEssenciais = new HashSet<>();
         for (Termo termo : implicantesPrimosEssenciais) {
             mintermosCobertosPorEssenciais.addAll(termo.getMintermosContemplados());
@@ -137,23 +137,23 @@ public class QuineMcCluskey {
         return mintermosCobertosPorEssenciais;
     }
     // Método booleano que indica se os implicantes essenciais são suficientes para cobrir todos os mintermos da função
-    public boolean essenciaisCobremTodosMintermos() {
+    private boolean essenciaisCobremTodosMintermos() {
         return mintermosCobertosPorEssenciais().containsAll(funcao.getMintermos());
     }
     // Método que determina quais mintermos não são cobertos por implicantes essenciais
-    public Set<Integer> mintermosNaoCobertosPorEssenciais() {
+    private Set<Integer> mintermosNaoCobertosPorEssenciais() {
         Set<Integer> mintermosNaoCobertosPorEssenciais = new HashSet<>(funcao.getMintermos());
         mintermosNaoCobertosPorEssenciais.removeAll(mintermosCobertosPorEssenciais());
         return mintermosNaoCobertosPorEssenciais;
     }
     // Método que determina quais implicantes primos não são essenciais
-    public Set<Termo> implicantesNaoEssenciais() {
+    private Set<Termo> implicantesNaoEssenciais() {
         Set<Termo> implicantesNaoEssenciais = new HashSet<>(implicantesPrimos);
         implicantesNaoEssenciais.removeAll(implicantesPrimosEssenciais);
         return implicantesNaoEssenciais;
     }
     // Monta a "tabela" de cobertura restante, isto é, com aqueles mintermos que não são cobertos por implicantes essenciais e os implicantes não-essenciais que os cobrem
-    public Map<Integer, Set<Termo>> coberturaRestante() {
+    private Map<Integer, Set<Termo>> coberturaRestante() {
         // Cria um mapeamento cujas chaves são os mintermos restante da função, e o valor é um conjunto com os implicantes não essenciais que cobrem esse mintermo
         Map<Integer, Set<Termo>> coberturaRestante = new HashMap<>();
         Set<Integer> mintermosNaoCobertosPorEssenciais =  mintermosNaoCobertosPorEssenciais();
@@ -181,16 +181,19 @@ public class QuineMcCluskey {
 
     /* Cria os fatores (somas de implicantes) de cada mintermos restante e os guarda em um conjunto, cada elemento deste conjunto representa um fator. 
     Exemplo: {[A, B],[C, D]} representa (A + B)*(C + D) */
-    public List<Set<Termo>> criarFatoresDePetrick() {
+    private List<Set<Termo>> criarFatoresDePetrick() {
         List<Set<Termo>> expressaoDePetrick = new ArrayList<>();
         for (Set<Termo> somaDeTermos : coberturaRestante().values()) {
             expressaoDePetrick.add(somaDeTermos);
         }
         return expressaoDePetrick;
     }
-    // Método que reescreve um fator como SOP
-    public Set<Set<Termo>> converterPOSparaSOP(Set<Termo> fator) {
+    /* Método que converte a representação das expressões. Isso será especialmente util para realizar a multiplicação dos fatores
+    Exemplo da nova representação: {[A], [B], [C, D]} = A + B + C*D 
+    O método recebe apenas o conjunto mais interno, que representa uma soma e separa cada termo em seu próprio conjunto*/
+    private Set<Set<Termo>> converterPOSparaSOP(Set<Termo> fator) {
         Set<Set<Termo>> resultado = new HashSet<>();
+        // Aqui, cada fator da POS vira um conjunto isolado
         for (Termo termo : fator) {
             Set<Termo> produto = new HashSet<>();
             produto.add(termo);
@@ -198,8 +201,12 @@ public class QuineMcCluskey {
         }
         return resultado;
     }
+    // Método que realiza as multiplicações dos fatores da expressão. Realiza a multiplicação de dois em dois fatores
     public Set<Set<Termo>> multiplicarFatores(Set<Set<Termo>> fator1, Set<Set<Termo>> fator2) {
         Set<Set<Termo>> resultado = new HashSet<>();
+        /*Para cada produto em um dos fatores, cria um novo produto com os termos de cada um dos produtos e adiciona o resultado.
+        Aqui, já há um simplicação que evita que termo iguais estejam em um mesmo produto
+        Exemplo: A*(A + B) = A + A*B. Com essa implementação o produto A*A entra como apenas A */
         for (Set<Termo> produto1 : fator1) {
             for (Set<Termo> produto2 : fator2) {
                 Set<Termo> novoProduto = new HashSet<>();
@@ -210,30 +217,35 @@ public class QuineMcCluskey {
         }
         return resultado;
     }
+    // Método que implementa a absorção de termos em uma expressão SOP
     private Set<Set<Termo>> absorver(Set<Set<Termo>> expressao) {
         Set<Set<Termo>> resultado = new HashSet<>(expressao);
+        // Percorre os produtos da expressão comparando todos as duplas de produtos
         for (Set<Termo> produtoA : expressao) {
             for (Set<Termo> produtoB : expressao) {
                 if (produtoA == produtoB)
                     continue;
+                // Se um produto incluir outro, este outro será removido da expressão
                 if (produtoB.containsAll(produtoA)) {
                     resultado.remove(produtoB);
                 }
             }
         }
-
         return resultado;
     }
-    public Set<Set<Termo>> calcularExpressaoDePetrick() {
+    // Calcula a expressão de Petrick, realizando a multiplicação dos fatores iniciais gerados da tabela de cobertura restante
+    private Set<Set<Termo>> calcularExpressaoDePetrick() {
         List<Set<Termo>> fatores = criarFatoresDePetrick();
         Set<Set<Termo>> resultado = converterPOSparaSOP(fatores.get(0));
         for (int i = 1; i < fatores.size(); i++) {
             resultado = multiplicarFatores(resultado, converterPOSparaSOP(fatores.get(i)));
+            // Entre as multiplicações, realiza absorção algébrica para reduzir o custo
             resultado = absorver(resultado);
         }
         return resultado;
     }
-    public Set<Termo> escolherMenorProduto() {
+    // Percorre a expressão de Petrick e retorna o produto composto pela menor quantidade de termos
+    private Set<Termo> escolherMenorProduto() {
         Set<Termo> menorProduto = null;
         for (Set<Termo> possivelSolucao : calcularExpressaoDePetrick()) {
             if (menorProduto == null || possivelSolucao.size() < menorProduto.size())
@@ -241,6 +253,7 @@ public class QuineMcCluskey {
         }
         return menorProduto;
     }
+    // Método que sintetiza o processo e retorna a expressão minimizada da função
     public Set<Termo> minimizar() {
         if (essenciaisCobremTodosMintermos()) {
             return implicantesPrimosEssenciais;
