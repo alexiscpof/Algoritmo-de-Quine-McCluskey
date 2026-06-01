@@ -143,8 +143,33 @@ public class QuineMcCluskey {
     }
     // Método que determina quais mintermos não são cobertos por implicantes essenciais
     public Set<Integer> mintermosNaoCobertosPorEssenciais() {
-        Set<Integer> mintermosNaoCobertosPorEssenciais = new HashSet<>(mintermosCobertosPorEssenciais());
-        mintermosNaoCobertosPorEssenciais().removeAll(funcao.getMintermos());
+        Set<Integer> mintermosNaoCobertosPorEssenciais = new HashSet<>(funcao.getMintermos());
+        mintermosNaoCobertosPorEssenciais.removeAll(mintermosCobertosPorEssenciais());
         return mintermosNaoCobertosPorEssenciais;
+    }
+    // Método que determina quais implicantes primos não são essenciais
+    public Set<Termo> implicantesNaoEssenciais() {
+        Set<Termo> implicantesNaoEssenciais = new HashSet<>(implicantesPrimos);
+        implicantesNaoEssenciais.removeAll(implicantesPrimosEssenciais);
+        return implicantesNaoEssenciais;
+    }
+    public Map<Integer, Set<Termo>> coberturaRestante() {
+        // Cria um mapeamento cujas chaves são os mintermos restante da função, e o valor é um conjunto com os implicantes não essenciais que cobrem esse mintermo
+        Map<Integer, Set<Termo>> coberturaRestante = new HashMap<>();
+        Set<Integer> mintermosNaoCobertosPorEssenciais =  mintermosNaoCobertosPorEssenciais();
+        // Pega os mintermos restante e cria os mapeamentos
+        for (Integer mintermo : mintermosNaoCobertosPorEssenciais) {
+            coberturaRestante.put(mintermo, new HashSet<>());
+        }
+        // Percorre todos mintermos não contemplados por implicantes essenciais, e adiciona o implicante não essencial no conjunto de termos que cobrem aquele mintermo
+        for (Termo implicante : implicantesNaoEssenciais()) {
+            for (Integer mintermoContemplado : implicante.getMintermosContemplados()) {
+                if (mintermosNaoCobertosPorEssenciais.contains(mintermoContemplado)) {
+                    coberturaRestante.get(mintermoContemplado).add(implicante);
+                }
+            }
+        }
+        // Retorna essa mapeamento
+        return coberturaRestante;
     }
 }
