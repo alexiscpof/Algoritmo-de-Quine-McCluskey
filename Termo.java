@@ -72,6 +72,15 @@ public class Termo {
         }
         return numeroDeBits1;
     }
+    // Método que retorna o número de literais da representação. Literais são bits '0' ou '1', ignorando o caractere '-'
+    public int getNumeroDeLiterais() {
+        int numeroDeLiterais = 0;
+        for (char caractere : representacao.toCharArray()) {
+            if (caractere != '-')
+                numeroDeLiterais++;
+        }
+        return numeroDeLiterais;
+    }
     /* Método para marcar este termo como combinado, indicando que ele participou de ao menos uma combinação, portanto, 
     não é candidato a implicante primo */
     public void marcarComoCombinado() {

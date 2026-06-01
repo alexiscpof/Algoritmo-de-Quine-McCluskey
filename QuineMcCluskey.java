@@ -1,5 +1,5 @@
 import java.util.*;
-
+// Limitações do algoritmo: Não cuida de casos Don't Care
 public class QuineMcCluskey {
     private FuncaoLogica funcao;
     private Set<Termo> implicantesPrimos;
@@ -223,9 +223,10 @@ public class QuineMcCluskey {
         // Percorre os produtos da expressão comparando todos as duplas de produtos
         for (Set<Termo> produtoA : expressao) {
             for (Set<Termo> produtoB : expressao) {
+                // Aqui a comparação por referência evita que comparemos um produto com ele mesmo 
                 if (produtoA == produtoB)
                     continue;
-                // Se um produto incluir outro, este outro será removido da expressão
+                // Se um produto incluir outro, este outro será absorvido pelo primeiro
                 if (produtoB.containsAll(produtoA)) {
                     resultado.remove(produtoB);
                 }
@@ -244,12 +245,30 @@ public class QuineMcCluskey {
         }
         return resultado;
     }
-    // Percorre a expressão de Petrick e retorna o produto composto pela menor quantidade de termos
+    // Método que será usado para contar quantos literais um produto possui. Isso será usado como critério de desempate no fim da minimização
+    private int contarLiterais(Set<Termo> produto) {
+        int numeroDeLiterais = 0;
+        for (Termo termo : produto) {
+            numeroDeLiterais += termo.getNumeroDeLiterais();
+        }
+        return numeroDeLiterais;
+    }
+    // Percorre a expressão de Petrick e retorna o produto composto pela menor quantidade de termos e menor número de literais
     private Set<Termo> escolherMenorProduto() {
         Set<Termo> menorProduto = null;
+        int numeroDeLiteraisMenor = 0;
         for (Set<Termo> possivelSolucao : calcularExpressaoDePetrick()) {
-            if (menorProduto == null || possivelSolucao.size() < menorProduto.size())
+            if (menorProduto == null || possivelSolucao.size() < menorProduto.size()) {
                 menorProduto = possivelSolucao;
+                numeroDeLiteraisMenor = contarLiterais(possivelSolucao);
+            }
+            else if (possivelSolucao.size() == menorProduto.size()) {
+                int numeroDeLiteraisPossivel = contarLiterais(possivelSolucao);
+                if (numeroDeLiteraisPossivel < numeroDeLiteraisMenor) {
+                    menorProduto = possivelSolucao;
+                    numeroDeLiteraisMenor = numeroDeLiteraisPossivel;
+                }
+            }
         }
         return menorProduto;
     }
