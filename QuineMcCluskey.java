@@ -8,6 +8,8 @@ public class QuineMcCluskey {
         this.funcao = funcao;
         implicantesPrimos = new HashSet<>();
         implicantesPrimosEssenciais = new HashSet<>();
+        determinarImplicantesPrimos();
+        determinarImplicantesEssenciais();
     }
     // Na primeira iteração do algoritmo, quando nenhuma combinação foi realizada, os termos são os próprios implicantes de cada mintermo da função
     private List<Termo> gerarTermosIniciais() {
@@ -87,7 +89,7 @@ public class QuineMcCluskey {
         }
     }
     // Método que realiza uma bateria de combinações até que todos os implicantes primos tenham sido determinados
-    public Set<Termo> encontrarImplicantesPrimos() {
+    private void determinarImplicantesPrimos() {
         // Este conjunto representa os termos que serão usados na iteração atual. Na primeira iteração, são simplesmente os implicantes dos mintermos
         Set<Termo> termosAtuais = new HashSet<>(gerarTermosIniciais());
         // Realiza combinações até que nenhuma combinação possa ser feita
@@ -99,8 +101,6 @@ public class QuineMcCluskey {
             // Atualiza os termos atuais para a próxima iteração
             termosAtuais = novosTermos;
         }
-        // Após todas as iterações de combinações, todos os implicantes primos foram determinados
-        return implicantesPrimos;
     }
     // Cria a "tabela" de cobertura do algoritmo
     public Map<Integer, Set<Termo>> mapeamentoDeCobertura() {
@@ -120,14 +120,13 @@ public class QuineMcCluskey {
         return cobertura;
     }
     // Determina os implicantes essenciais por meio da "tabela" de cobertura. Os implicantes essenciais são aqueles que cobrem mintermos que não são cobertos por nenhum outro
-    public Set<Termo> determinarImplicantesEssenciais() {
+    private void determinarImplicantesEssenciais() {
         // Os mintermos que são cobertos por apenas um termo indicam que aquele termo é essencial
         for (Set<Termo> cobertura : mapeamentoDeCobertura().values()) {
             if (cobertura.size() == 1) 
                 // Adiciona o termo na lista de implicantes essenciais
                 implicantesPrimosEssenciais.add(cobertura.iterator().next());
         }
-        return implicantesPrimosEssenciais;
     }
     // Método que determina quais mintermos são cobertos por implicantes essenciais
     public Set<Integer> mintermosCobertosPorEssenciais() {
@@ -232,6 +231,22 @@ public class QuineMcCluskey {
             resultado = multiplicarFatores(resultado, converterPOSparaSOP(fatores.get(i)));
             resultado = absorver(resultado);
         }
+        return resultado;
+    }
+    public Set<Termo> escolherMenorProduto() {
+        Set<Termo> menorProduto = null;
+        for (Set<Termo> possivelSolucao : calcularExpressaoDePetrick()) {
+            if (menorProduto == null || possivelSolucao.size() < menorProduto.size())
+                menorProduto = possivelSolucao;
+        }
+        return menorProduto;
+    }
+    public Set<Termo> minimizar() {
+        if (essenciaisCobremTodosMintermos()) {
+            return implicantesPrimosEssenciais;
+        }
+        Set<Termo> resultado = new HashSet<>(implicantesPrimosEssenciais);
+        resultado.addAll(escolherMenorProduto());
         return resultado;
     }
 }
