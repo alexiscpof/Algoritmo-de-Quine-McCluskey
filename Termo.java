@@ -96,13 +96,13 @@ public class Termo {
             if (bit == '-') {
                 continue;
             }
-            // Se o bit for '0', insere um caractere para representar que o literal está negado
-            if (bit == '0') {
-                expressao.append("~");
-            }
             // Cada literal será representado por um letra, começando do A
             char variavel = (char) ('A' + i);
             expressao.append(variavel);
+            // Se o bit for '0', insere um caractere para representar que o literal está negado
+            if (bit == '0') {
+                expressao.append("'");
+            }
         }
         return expressao.toString();
     }

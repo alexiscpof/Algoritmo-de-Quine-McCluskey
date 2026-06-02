@@ -1,24 +1,17 @@
-import java.util.*;
+import java.io.IOException;
+import java.util.Set;
+import java.util.stream.Collectors;
 public class Main {
-    public static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-        int numeroDeVariaveis, numeroDeMintermos;
-        do {
-            System.out.printf("Digite o número de variáveis da função > ");
-            numeroDeVariaveis = scanner.nextInt();
-        } while (numeroDeVariaveis <= 0);
-        do {
-            System.out.printf("Digite o número de mintermos da função > ");
-            numeroDeMintermos = scanner.nextInt();
-        } while (numeroDeMintermos <= 0);
-        System.out.print("Digite os mintermos da função > ");
-        Set<Integer> mintermos = new HashSet<>();
-        for (int i = 0; i < numeroDeMintermos; i++) {
-            mintermos.add(scanner.nextInt());
-        }
-        FuncaoLogica funcao = new FuncaoLogica(numeroDeVariaveis, mintermos);
+    public static void main(String[] args) throws IOException {
+        // Lê o arquivo especificado e cria a função que ele define
+        FuncaoLogica funcao = LeitorPLA.ler("testes/funcao1.pla");
+        // Inicializa o algoritmo para aquela função
         QuineMcCluskey algoritmo = new QuineMcCluskey(funcao);
-        System.out.print("Implicantes primos da função > ");
-        System.out.println(algoritmo.encontrarImplicantesPrimos().toString());
+        // Guarda o conjunto de termos minimizados
+        Set<Termo> resultado = algoritmo.minimizar();
+        // Formata o resultado
+        String mensagem = resultado.stream().map(Termo::toString).collect(Collectors.joining(" + "));
+        // Exibe o resultado
+        System.out.println("Função minizada: " + mensagem);
     }
 }
